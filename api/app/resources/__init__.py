@@ -39,11 +39,9 @@ class APIResource(Resource):
     def dispatch_request(self, *args, **kwargs):
         common_processor = getattr(self, 'common', None)
         try:
-            if common_processor is None:
-                response = super(APIResource, self).dispatch_request(*args, **kwargs)
-            else:
+            if common_processor is not None:
                 args, kwargs = common_processor(*args, **kwargs)
-                response = super(APIResource, self).dispatch_request(*args, **kwargs)
+            response = super().dispatch_request(*args, **kwargs)
         except APIError as exc:
             return self.error_response(exc)
         except DBError as exc:
