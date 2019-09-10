@@ -18,6 +18,7 @@ After setup database, install required Python packages and run the server. Serve
 
 ```bash
 pip install -r api/requirements.txt
+python api/manage.py initdb
 python api/manage.py run
 ```
 
