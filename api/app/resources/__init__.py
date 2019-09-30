@@ -8,8 +8,8 @@ from flask.json import JSONEncoder
 from flask_restful import Resource, abort
 from werkzeug.exceptions import HTTPException
 
-from app import status
-from app.exc import APIError
+from api.app import status
+from api.app.exc import APIError
 from config import config
 from db.exc import DBError
 from db.models import UserAccessToken

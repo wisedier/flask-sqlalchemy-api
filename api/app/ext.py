@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_restful import Api
 from flask_swagger import swagger
 
-from app.resources.definitions import definitions
+from api.app.resources.definitions import definitions
 from config import config
 
 api = None

@@ -1,15 +1,21 @@
+import os
+
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager, Shell
 from sqlalchemy_utils import create_database, database_exists, drop_database
 
-from app.wsgi import app
+from api.app.wsgi import app
 from config import config
 from db import base
 from db.base import Base
 from utils.sqlalchemy import import_models, turn_off_alchemy_log
 
 manager = Manager(app)
-migrate = Migrate(app, base.db_engine)
+migrate = Migrate(
+    app=app,
+    db=base.db_engine,
+    directory=os.path.join(config.PROJECT_ROOT, 'db', 'migrations'),
+)
 manager.add_command('db', MigrateCommand)
 banner = u'\n'.join(
     [

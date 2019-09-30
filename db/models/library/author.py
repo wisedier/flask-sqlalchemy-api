@@ -1,7 +1,7 @@
+import sqlalchemy as sa
+
 from db.base import Base
 from db.mixins import IdMixin
-
-import sqlalchemy as sa
 
 
 class Author(Base, IdMixin):

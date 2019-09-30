@@ -24,7 +24,7 @@ class Query(orm.Query):
 
         Examples:
             >>> import marshmallow as mm
-            >>> from db.models.account import User
+            >>> from db.models import User
             >>> class UserSchema(mm.Schema):
             ...     id = mm.fields.Int()
             ...     name = mm.fields.Str()

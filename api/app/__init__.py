@@ -5,7 +5,7 @@ import sys
 from flask import Flask, Response
 from flask.json import JSONEncoder
 
-from app import ext
+from api.app import ext
 from config import config
 from db.base import Session
 

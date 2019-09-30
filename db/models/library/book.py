@@ -1,5 +1,5 @@
 import sqlalchemy as sa
-from sqlalchemy import UniqueConstraint, orm, String
+from sqlalchemy import String, UniqueConstraint, orm
 
 from db.base import Base
 from db.mixins import IdMixin

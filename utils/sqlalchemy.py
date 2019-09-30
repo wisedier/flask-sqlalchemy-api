@@ -1,4 +1,5 @@
 import logging
+
 from sqlalchemy_utils import force_auto_coercion
 
 

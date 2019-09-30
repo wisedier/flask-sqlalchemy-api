@@ -1,6 +1,6 @@
 from werkzeug.exceptions import HTTPException
 
-from app import status
+from api.app import status
 
 __all__ = (
     'APIError',

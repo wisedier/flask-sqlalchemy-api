@@ -1,8 +1,8 @@
 from flask_restful import reqparse
 
-from app import status
-from app.ext import api
-from app.resources import APIResource
+from api.app import status
+from api.app.ext import api
+from api.app.resources import APIResource
 from db.models import Book
 from db.schemas import BookSchema
 

@@ -13,8 +13,8 @@ __all__ = (
 class Config(object):
     ENV = 'DEFAULT'
     NAME = 'FLASK-SQLALCHEMY'
-    TEST = False
     DEBUG = False
+    TESTING = False
     CSRF_ENABLED = True
     PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     STATIC_DIR = os.path.join(PROJECT_ROOT, 'app', 'static')
@@ -36,8 +36,8 @@ class Config(object):
 
 class TestConfig(Config):
     ENV = 'TEST'
-    TEST = True
     DEBUG = True
+    TESTING = True
     SQLALCHEMY_DATABASE_URI = secret.TEST_SQLALCHEMY_DATABASE_URL
 
 
