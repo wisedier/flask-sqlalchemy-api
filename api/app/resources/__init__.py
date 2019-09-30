@@ -6,7 +6,7 @@ from typing import Optional
 from flask import Response, request
 from flask.json import JSONEncoder
 from flask_restful import Resource, abort
-from werkzeug.exceptions import BadRequest, NotFound
+from werkzeug.exceptions import HTTPException
 
 from app import status
 from app.exc import APIError
@@ -26,7 +26,8 @@ def login_required(func):
         user = APIResource.get_user()
         if user is None:
             return abort(403)
-        return func(*args, **kwargs)
+        return func(user, *args, **kwargs)
+
     return check_authorization
 
 
@@ -38,17 +39,18 @@ class APIResource(Resource):
 
     def dispatch_request(self, *args, **kwargs):
         common_processor = getattr(self, 'common', None)
+        # noinspection PyBroadException
         try:
             if common_processor is not None:
-                args, kwargs = common_processor(*args, **kwargs)
-            response = super().dispatch_request(*args, **kwargs)
-        except APIError as exc:
+                ret = common_processor(*args, **kwargs)
+                if not isinstance(ret, (list, tuple)):
+                    args = (ret,)
+            response = super().dispatch_request(*args)
+        except HTTPException as exc:
             return self.error_response(exc)
         except DBError as exc:
             return self.error_response(exc, status.HTTP_400_BAD_REQUEST)
-        except Exception as exc:
-            if isinstance(exc, (NotFound, BadRequest)):
-                return self.error_response(exc)
+        except Exception:
             if config.DEBUG:
                 raise
             return self.error_response(APIError())
@@ -63,7 +65,6 @@ class APIResource(Resource):
     def error_response(cls, exc, status_code=None):
         if status_code is None:
             status_code = exc.code
-
         description = exc.description
         data = dict(code=exc.__class__.__name__, description=description)
         data = JSONEncoder().encode(data)
@@ -96,12 +97,12 @@ class APIResource(Resource):
             return None
 
         try:
-            return b64decode(bearer.encode())
+            return b64decode(bearer).decode()
         except (UnicodeEncodeError, ValueError):
             return None
 
     @staticmethod
-    def get_user(token=None):
+    def get_user(token: Optional[str] = None):
         if token is None:
             token = APIResource.get_token()
         return UserAccessToken.get_user_by_token(token)
