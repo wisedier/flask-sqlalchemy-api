@@ -26,24 +26,26 @@ class UserAccessToken(Base):
 
     @property
     def is_expired(self):
-        return (self.expiration_timestamp is not None and
-                self.expiration_timestamp < int(time.time()))
+        if self.expiration_timestamp is not None:
+            return self.expiration_timestamp < int(time.time())
+        return False
 
-    def refresh(self, commit: bool = True):
+    def refresh(self, *, commit: bool = True):
         self.token = self.get_new_token()
         if config.DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME:
             self.expiration_timestamp = int(time.time() +
                                             config.DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME)
-        return self.save(commit)
+        return self.save(commit=commit)
 
     @classmethod
-    def get_user_by_token(cls, token: Optional[str]):
+    def get_user_by_token(cls, token: Optional[str]) -> Optional['User']:
         if token is None or len(token) != 64:
-            raise ValueError("The length of token has to be 64.")
+            return None
 
         at = cls.query.filter(cls.token == token).first()
         if at is None:
             return None
+
         return User.query.filter(User.id == at.user_id).first()
 
     @classmethod
@@ -56,7 +58,7 @@ class UserAccessToken(Base):
         return token
 
     @classmethod
-    def issue(cls, user: User, commit: bool = True):
+    def issue(cls, user: 'User', *, commit: bool = True):
         token = cls.get_new_token()
         expiration_timestamp = None
         if config.DEFAULT_ACCESS_TOKEN_EXPIRATION_TIME:
@@ -65,4 +67,4 @@ class UserAccessToken(Base):
                 .create(user_id=user.id,
                         token=token,
                         expiration_timestamp=expiration_timestamp)
-                .save(commit))
+                .save(commit=commit))
