@@ -3,7 +3,7 @@ import sys
 
 import colorama
 import inflection
-from sqlalchemy import MetaData, create_engine
+from sqlalchemy import MetaData, create_engine, exc
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.util import OrderedSet
@@ -41,6 +41,52 @@ class DeclarativeBase(object):
 class Base(declarative_base(cls=DeclarativeBase, metadata=MetaData()), object):
     __abstract__ = True
     query = Session.query_property()
+    session = Session()
+
+    @classmethod
+    def commit(cls):
+        try:
+            cls.session.commit()
+        except Exception:
+            cls.session.rollback()
+            raise
+
+    @classmethod
+    def create(cls, **kwargs):
+        # noinspection PyArgumentList
+        instance = cls(**kwargs)
+        return instance.save(commit=False)
+
+    @classmethod
+    def get_by(cls, **kwargs):
+        return cls.query.filter_by(**kwargs).first()
+
+    def update(self, **kwargs):
+        commit = kwargs.get('commit', False)
+        for field in kwargs:
+            setattr(self, field, kwargs[field])
+        self.save(commit=commit)
+
+    def save(self, *, commit=False):
+        self.session.add(self)
+        if commit:
+            try:
+                self.session.commit()
+            except exc.SQLAlchemyError:
+                pass
+            except Exception:
+                self.session.rollback()
+                raise
+        return self
+
+    def delete(self, *, commit=True):
+        self.session.delete(self)
+        if commit:
+            try:
+                self.session.commit()
+            except Exception:
+                self.session.rollback()
+                raise
 
 
 if config.SQLALCHEMY_ECHO:
