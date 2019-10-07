@@ -7,7 +7,7 @@ from flask.json import JSONEncoder
 
 from api.app import ext
 from config import config
-from db.base import Session
+from db.base import session
 
 
 def create_app():
@@ -29,9 +29,9 @@ def init_teardown(app):
     def session_clear(response_or_exc):
         try:
             if response_or_exc is None:
-                Session.commit()
+                session.commit()
         finally:
-            Session.remove()
+            session.close()
         return response_or_exc
 
 

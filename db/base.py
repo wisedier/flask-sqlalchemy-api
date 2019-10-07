@@ -25,6 +25,7 @@ Session = scoped_session(
         query_cls=query.Query,
     )
 )
+session = Session()
 
 
 class DeclarativeBase(object):
@@ -41,7 +42,7 @@ class DeclarativeBase(object):
 class Base(declarative_base(cls=DeclarativeBase, metadata=MetaData()), object):
     __abstract__ = True
     query = Session.query_property()
-    session = Session()
+    session = session
 
     @classmethod
     def commit(cls):
